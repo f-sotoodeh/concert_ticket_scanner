@@ -1,7 +1,9 @@
-import pandas as pd
+def print_summary(df, session):
+    print("\n--- Scan Summary ---")
+    print(f"Total scanned: {session.scanned}")
+    print(f"Valid tickets: {session.valid}")
+    print(f"Used tickets: {session.used}")
+    print(f"Invalid tickets: {session.invalid}")
 
-from core.session import ScanSession
-
-
-def print_summary(df: pd.DataFrame, session: ScanSession) -> None:
-    pass
+    print("\n--- Ticket Statuses ---")
+    print(df["status"].value_counts())

@@ -6,9 +6,9 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from core.history import load_session_history, save_scan_history
+from core.models import ScanSession
+from core.session import create_new_session, load_session, save_session, reset_session
 from core.scanner import interactive_scan
-from core.session import ScanSession
 from core.summary import print_summary
 from core.ticket_loader import load_and_validate_tickets
 
@@ -35,30 +35,34 @@ def main():
         print(f"Error: CSV file not found at {csv_path}", file=sys.stderr)
         sys.exit(1)
 
-    # Load tickets
     try:
         df = load_and_validate_tickets(csv_path)
     except ValueError as e:
         print(f"Error loading CSV: {e}", file=sys.stderr)
         sys.exit(1)
 
-    session = ScanSession()
-
     if args.mode == "scan":
         print("Ticket Scanner - Enter codes (type 'quit' to exit)\n")
+
+        session = create_new_session()
         interactive_scan(df, session)
-        # After scan ends, save history and update CSV
+
+        save_session(session)
         df.to_csv(csv_path, index=False)
+
         print("\nScan session ended. Tickets updated.")
 
     elif args.mode == "summary":
+        session = load_session()
         print_summary(df, session)
 
     elif args.mode == "reset":
-        # Clear history file
-        history_path = Path("data/session_history.json")
-        history_path.unlink(missing_ok=True)
-        print("Session history cleared.")
+        reset_session()
+
+        df["status"] = "valid"
+        df.to_csv(csv_path, index=False)
+
+        print("Session history and ticket statuses reset.")
 
 
 if __name__ == "__main__":
