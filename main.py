@@ -6,9 +6,7 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from pandas.io.formats.format import return_docstring
-
-from core.history import load_session_history, save_scan_history
+from core.history import load_session_history
 from core.scanner import interactive_scan
 from core.session import ScanSession
 from core.summary import print_summary
